@@ -25,19 +25,15 @@ breach_lm2 <- lm(log10_num ~ state + entity_type + assoc_present*type + assoc_pr
 anova(breach_lm, breach_lm2)
 
 library(ranger)
-breach_rf <- ranger(log10_num ~ state + entity_type + assoc_present + type + loc,
+breach_rf <- ranger(type ~ state + entity_type + assoc_present + log10_num + loc,
                     data = data_long,
                     importance = "impurity",
                     seed = 1)
 
 importance(breach_rf)
 
-breach_rf2 <- ranger(log10_num ~ state + entity_type + assoc_present + type + loc,
-                     data = data_long,
-                     importance = "impurity_corrected",
-                     seed = 1)
+library(yardstick)
+(rf_conf <- breach_rf$confusion.matrix)
 
-importance_pvalues(breach_rf2, 
-                   method = "altmann", 
-                   formula = log10_num ~ state + entity_type + assoc_present + type + loc,
-                   data = data_long)
+accuracy(rf_conf)
+precision(rf_conf)
